@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "agamudayar-27",
+    "staging": "agamudayar-admin"
+  },
+  "targets": {},
+  "etags": {}
+}
