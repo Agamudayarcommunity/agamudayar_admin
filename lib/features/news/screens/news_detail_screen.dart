@@ -7,6 +7,7 @@ import '../bloc/news_bloc.dart';
 import '../bloc/news_event.dart';
 import '../bloc/news_state.dart';
 import '../models/news_model.dart';
+import '../providers/news_provider.dart';
 import '../repositories/news_repository.dart';
 
 class NewsDetailScreen extends StatefulWidget {
@@ -58,14 +59,12 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
     return BlocProvider(
       create: (context) => NewsBloc(newsRepository: _newsRepository),
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('News Details'),
-        ),
+        appBar: AppBar(title: const Text('News Details')),
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _newsItem == null
-                ? const Center(child: Text('News item not found'))
-                : _buildNewsDetails(context),
+            ? const Center(child: Text('News item not found'))
+            : _buildNewsDetails(context),
       ),
     );
   }
@@ -80,13 +79,13 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
           );
         } else if (state is NewsStatusUpdatedViaApi) {
           _loadNewsItem();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         } else if (state is NewsError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: ${state.message}')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: ${state.message}')));
         }
       },
       child: SingleChildScrollView(
@@ -124,18 +123,22 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                     const SizedBox(height: 8),
                     Text('Submitted by: ${_newsItem!.submittedBy}'),
                     Text(
-                        'Submitted on: ${_formatDate(_newsItem!.submittedDate)}'),
+                      'Submitted on: ${_formatDate(_newsItem!.submittedDate)}',
+                    ),
                     if (_newsItem!.status == ApprovalStatus.approved &&
                         _newsItem!.approvedDate != null)
                       Text(
-                          'Approved on: ${_formatDate(_newsItem!.approvedDate!)}'),
+                        'Approved on: ${_formatDate(_newsItem!.approvedDate!)}',
+                      ),
                     if (_newsItem!.status == ApprovalStatus.rejected &&
                         _newsItem!.rejectionReason != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
                           'Rejection reason: ${_newsItem!.rejectionReason}',
-                          style: const TextStyle(color: Color(0xFFD32F2F)), // Dark red
+                          style: const TextStyle(
+                            color: Color(0xFFD32F2F),
+                          ), // Dark red
                         ),
                       ),
                   ],
@@ -143,7 +146,8 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            if (_newsItem!.imageUrls.isNotEmpty || _newsItem!.imageUrl.isNotEmpty)
+            if (_newsItem!.imageUrls.isNotEmpty ||
+                _newsItem!.imageUrl.isNotEmpty)
               Card(
                 elevation: 4,
                 child: Column(
@@ -161,33 +165,43 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: (_newsItem!.imageUrls.isNotEmpty
-                                  ? _newsItem!.imageUrls
-                                  : [_newsItem!.imageUrl])
-                              .where((u) => u.isNotEmpty)
-                              .map((u) => Container(
-                                    margin: const EdgeInsets.only(left: 12, right: 12),
-                                    width: 300,
-                                    height: 200,
-                                    color: AppColors.grey.withOpacity(0.1),
-                                    child: Image.network(
-                                      u,
-                                      height: 200,
+                          children:
+                              (_newsItem!.imageUrls.isNotEmpty
+                                      ? _newsItem!.imageUrls
+                                      : [_newsItem!.imageUrl])
+                                  .where((u) => u.isNotEmpty)
+                                  .map(
+                                    (u) => Container(
+                                      margin: const EdgeInsets.only(
+                                        left: 12,
+                                        right: 12,
+                                      ),
                                       width: 300,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Container(
-                                          height: 200,
-                                          width: 300,
-                                          color: AppColors.grey.withOpacity(0.3),
-                                          child: const Center(
-                                            child: Text('Image not available'),
-                                          ),
-                                        );
-                                      },
+                                      height: 200,
+                                      color: AppColors.grey.withOpacity(0.1),
+                                      child: Image.network(
+                                        u,
+                                        height: 200,
+                                        width: 300,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return Container(
+                                                height: 200,
+                                                width: 300,
+                                                color: AppColors.grey
+                                                    .withOpacity(0.3),
+                                                child: const Center(
+                                                  child: Text(
+                                                    'Image not available',
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                      ),
                                     ),
-                                  ))
-                              .toList(),
+                                  )
+                                  .toList(),
                         ),
                       ),
                     ),
@@ -249,7 +263,9 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Approve News'),
-        content: Text('Are you sure you want to approve "${_newsItem!.title}"?'),
+        content: Text(
+          'Are you sure you want to approve "${_newsItem!.title}"?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -257,12 +273,21 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
           ),
           TextButton(
             onPressed: () {
-              context.read<NewsBloc>().add(
-                    UpdateNewsStatusViaApi(
-                      newsId: _newsItem!.id,
-                      status: 'Approved',
-                    ),
-                  );
+              // context.read<NewsBloc>().add(
+              //       UpdateNewsStatusViaApi(
+              //         newsId: _newsItem!.id,
+              //         status: 'Approved',
+              //       ),
+              //     );
+              // Navigator.pop(context);
+              context.read<NewsProvider>().updateNewsStatus(
+                widget.newsId,
+                ApprovalStatus.approved,
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('News approved successfully')),
+              );
+              Navigator.pop(context);
               Navigator.pop(context);
             },
             child: const Text('Approve'),
@@ -308,12 +333,22 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                 );
                 return;
               }
-              context.read<NewsBloc>().add(
-                    UpdateNewsStatusViaApi(
-                      newsId: _newsItem!.id,
-                      status: 'Rejected',
-                    ),
-                  );
+              // context.read<NewsBloc>().add(
+              //   UpdateNewsStatusViaApi(
+              //     newsId: _newsItem!.id,
+              //     status: 'Rejected',
+              //   ),
+              // );
+              // Navigator.pop(context);
+              context.read<NewsProvider>().updateNewsStatus(
+                widget.newsId,
+                ApprovalStatus.rejected,
+                rejectionReason: reasonController.text.trim(),
+              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('News rejected')));
+              Navigator.pop(context);
               Navigator.pop(context);
             },
             child: const Text('Reject'),

@@ -34,9 +34,7 @@ class NewsScreen extends StatelessWidget {
                 onPressed: () {
                   newsProvider.loadNews();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Loading news from API...'),
-                    ),
+                    const SnackBar(content: Text('Loading news from API...')),
                   );
                 },
               );
@@ -78,29 +76,13 @@ class NewsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              _buildFilterChip(
-                context,
-                'All',
-                null,
-              ),
+              _buildFilterChip(context, 'All', null),
               const SizedBox(width: 8),
-              _buildFilterChip(
-                context,
-                'Pending',
-                ApprovalStatus.pending,
-              ),
+              _buildFilterChip(context, 'Pending', ApprovalStatus.pending),
               const SizedBox(width: 8),
-              _buildFilterChip(
-                context,
-                'Approved',
-                ApprovalStatus.approved,
-              ),
+              _buildFilterChip(context, 'Approved', ApprovalStatus.approved),
               const SizedBox(width: 8),
-              _buildFilterChip(
-                context,
-                'Rejected',
-                ApprovalStatus.rejected,
-              ),
+              _buildFilterChip(context, 'Rejected', ApprovalStatus.rejected),
             ],
           ),
         ),
@@ -135,9 +117,8 @@ class NewsScreen extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => NewsDetailScreen(
-                                      newsId: newsItem.id,
-                                    ),
+                                    builder: (context) =>
+                                        NewsDetailScreen(newsId: newsItem.id),
                                   ),
                                 );
                               },
@@ -149,15 +130,16 @@ class NewsScreen extends StatelessWidget {
                             DataCell(
                               ApprovalActions(
                                 status: newsItem.status,
-                                onApprove: () => _showApproveDialog(context, newsItem),
-                                onReject: () => _showRejectDialog(context, newsItem),
+                                onApprove: () =>
+                                    _showApproveDialog(context, newsItem),
+                                onReject: () =>
+                                    _showRejectDialog(context, newsItem),
                                 onView: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => NewsDetailScreen(
-                                        newsId: newsItem.id,
-                                      ),
+                                      builder: (context) =>
+                                          NewsDetailScreen(newsId: newsItem.id),
                                     ),
                                   );
                                 },
@@ -174,7 +156,11 @@ class NewsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterChip(BuildContext context, String label, ApprovalStatus? status) {
+  Widget _buildFilterChip(
+    BuildContext context,
+    String label,
+    ApprovalStatus? status,
+  ) {
     return FilterChip(
       label: Text(label),
       selected: false,
@@ -257,9 +243,9 @@ class NewsScreen extends StatelessWidget {
                 rejectionReason: reasonController.text.trim(),
               );
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('News rejected')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('News rejected')));
             },
             child: const Text('Reject'),
           ),
