@@ -3,14 +3,15 @@ import 'package:http/http.dart' as http;
 
 class NewsApiService {
   //'https://agamudayar.co.in/api/v1/'
-  static const String prodBaseUrl = 'https://agamudayar.co.in/agamudayarbe/api/v1/';
+  static const String prodBaseUrl =
+      'https://agamudayar.co.in/agamudayarbe/api/v1/';
   final String baseUrl = prodBaseUrl;
 
   // Fetch news data from the API
   Future<List<Map<String, dynamic>>> fetchNewsData() async {
     try {
       final response = await http.get(Uri.parse('${baseUrl}news/status/all'));
-      
+
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data.map((item) => item as Map<String, dynamic>).toList();
@@ -26,7 +27,7 @@ class NewsApiService {
   Future<Map<String, dynamic>> fetchNewsById(String id) async {
     try {
       final response = await http.get(Uri.parse('${baseUrl}news/$id'));
-      
+
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
@@ -38,19 +39,17 @@ class NewsApiService {
   }
 
   // Update news status via API
-  Future<Map<String, dynamic>> updateNewsStatus(String newsId, String status) async {
+  Future<Map<String, dynamic>> updateNewsStatus(
+    String newsId,
+    String status,
+  ) async {
     try {
       final response = await http.post(
         Uri.parse('${baseUrl}news/update'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'newsId': newsId,
-          'status': status,
-        }),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'newsId': newsId, 'status': status}),
       );
-      
+
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
@@ -74,7 +73,9 @@ class NewsApiService {
         final List<dynamic> data = responseData['data'] ?? [];
         return data;
       } else {
-        throw Exception('Failed to fetch news status data: ${response.statusCode}');
+        throw Exception(
+          'Failed to fetch news status data: ${response.statusCode}',
+        );
       }
     } catch (e) {
       throw Exception('Error fetching news status data: $e');
@@ -87,10 +88,7 @@ class NewsApiService {
       final response = await http.post(
         Uri.parse('${baseUrl}news/update'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'newsId': newsId,
-          'status': status,
-        }),
+        body: json.encode({'newsId': newsId, 'status': status}),
       );
 
       if (response.statusCode == 200) {
@@ -135,9 +133,7 @@ class NewsApiService {
     List<String>? images,
   }) async {
     try {
-      final Map<String, dynamic> payload = {
-        'newsId': newsId,
-      };
+      final Map<String, dynamic> payload = {'newsId': newsId};
 
       if (status != null) payload['status'] = status;
       if (title != null) payload['title'] = title;
@@ -156,6 +152,45 @@ class NewsApiService {
         return json.decode(response.body) as Map<String, dynamic>;
       } else {
         throw Exception('Failed to update news: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error updating news: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> uploadNewsUpdate({
+    required String newsId,
+    required String title,
+    required String content,
+    List<http.MultipartFile>? imageFiles,
+  }) async {
+    try {
+      // --- This must match the new endpoint in your Node.js app ---
+      var uri = Uri.parse('${baseUrl}news/update-with-images');
+      var request = http.MultipartRequest('PUT', uri);
+
+      // Add all the text fields
+      request.fields['newsId'] = newsId;
+      request.fields['title'] = title;
+      request.fields['contentMessage'] = content;
+      // Add other fields (subtitle, etc.) as needed
+
+      // Add the new image files (if any)
+      if (imageFiles != null) {
+        request.files.addAll(imageFiles);
+      }
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['data']
+            as Map<String, dynamic>; // Return the updated news item
+      } else {
+        throw Exception(
+          'Failed to update news: ${response.statusCode} ${response.body}',
+        );
       }
     } catch (e) {
       throw Exception('Error updating news: $e');

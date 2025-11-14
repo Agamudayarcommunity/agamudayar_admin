@@ -96,7 +96,7 @@ class NewsScreen extends StatelessWidget {
                     child: DataTable(
                       columns: const [
                         DataColumn(label: Text('Title')),
-                        DataColumn(label: Text('Category')),
+                        //DataColumn(label: Text('Category')),
                         DataColumn(label: Text('Submitted By')),
                         DataColumn(label: Text('Submitted Date')),
                         DataColumn(label: Text('Status')),
@@ -123,7 +123,7 @@ class NewsScreen extends StatelessWidget {
                                 );
                               },
                             ),
-                            DataCell(Text(newsItem.category)),
+                            //DataCell(Text(newsItem.category)),
                             DataCell(Text(newsItem.submittedBy)),
                             DataCell(Text(_formatDate(newsItem.submittedDate))),
                             DataCell(StatusBadge(status: newsItem.status)),

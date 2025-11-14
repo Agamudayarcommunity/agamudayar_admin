@@ -1,3 +1,9 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
+
 import '../models/news_model.dart';
 import '../models/news_api_model.dart';
 import '../services/news_api_service.dart';
@@ -10,7 +16,9 @@ class NewsRepository {
   Future<List<NewsModel>> getAllNews() async {
     try {
       final apiNewsData = await _apiService.fetchNewsStatusAll();
-      final apiNews = apiNewsData.map((item) => NewsApiModel.fromJson(item)).toList();
+      final apiNews = apiNewsData
+          .map((item) => NewsApiModel.fromJson(item))
+          .toList();
       return apiNews.map((apiModel) => _convertToNewsModel(apiModel)).toList();
     } catch (e) {
       throw Exception('Failed to fetch news: $e');
@@ -26,7 +34,9 @@ class NewsRepository {
       id: apiModel.newsId,
       title: apiModel.title,
       content: apiModel.contentMessage,
-      imageUrl: urls.isNotEmpty ? urls.first : 'https://via.placeholder.com/300x200',
+      imageUrl: urls.isNotEmpty
+          ? urls.first
+          : 'https://via.placeholder.com/300x200',
       imageUrls: urls,
       category: apiModel.subtitle.isNotEmpty ? apiModel.subtitle : 'General',
       submittedBy: 'API User',
@@ -69,7 +79,11 @@ class NewsRepository {
   }
 
   // Update news status via API only
-  Future<void> updateNewsStatus(String id, ApprovalStatus status, {String? rejectionReason}) async {
+  Future<void> updateNewsStatus(
+    String id,
+    ApprovalStatus status, {
+    String? rejectionReason,
+  }) async {
     try {
       await updateNewsStatusOnly(id, status.name);
     } catch (e) {
@@ -94,6 +108,47 @@ class NewsRepository {
       return message;
     } catch (e) {
       throw Exception('Failed to update news details: $e');
+    }
+  }
+
+  Future<NewsModel> saveEditedNews({
+    required String newsId,
+    required String title,
+    required String content,
+    List<PlatformFile>? newImages, // <-- FIX: Changed from XFile
+  }) async {
+    try {
+      List<http.MultipartFile> imageFiles = [];
+
+      if (newImages != null && newImages.isNotEmpty) {
+        for (var file in newImages) {
+          // This logic handles both Web and Mobile file uploads
+          imageFiles.add(
+            http.MultipartFile.fromBytes(
+              'images', // This MUST match your backend's multer key
+              file.bytes!, // Use the file bytes
+              filename: file.name,
+              contentType: MediaType.parse(
+                lookupMimeType(file.name) ?? 'application/octet-stream',
+              ),
+            ),
+          );
+        }
+      }
+
+      // Call the API service to upload everything
+      final updatedNewsMap = await _apiService.uploadNewsUpdate(
+        newsId: newsId,
+        title: title,
+        content: content,
+        imageFiles: imageFiles.isNotEmpty ? imageFiles : null,
+      );
+
+      // Convert the raw API data back into our clean app model
+      final apiModel = NewsApiModel.fromJson(updatedNewsMap);
+      return _convertToNewsModel(apiModel);
+    } catch (e) {
+      throw Exception('Failed to save news details: $e');
     }
   }
 }
