@@ -716,7 +716,7 @@ class DunsTrustBadge extends StatelessWidget {
     // The actual content is rendered by the browser into the HTML body.
     return const SizedBox(
       width: 114,
-      height: 97,
+      height: 40,
       // Note: We use a placeholder here. We no longer use HtmlElementView.
       child: Center(
         child: Text('D&B Trust Seal', style: TextStyle(fontSize: 10)),
