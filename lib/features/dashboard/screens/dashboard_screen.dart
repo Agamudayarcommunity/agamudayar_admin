@@ -5,6 +5,7 @@ import '../../../config/theme.dart';
 import '../../../widgets/sidebar.dart';
 import '../../news/providers/news_provider.dart';
 import '../../news/widgets/news_status_card.dart';
+import 'package:web/web.dart' as web;
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -13,7 +14,8 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> with TickerProviderStateMixin {
+class _DashboardScreenState extends State<DashboardScreen>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -21,29 +23,25 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animations
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
-    
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
+
     // Load initial data when dashboard is first created
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NewsProvider>().loadNews();
@@ -64,10 +62,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       appBar: AppBar(
         title: const Text(
           'Dashboard',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 24,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
         ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
@@ -84,7 +79,9 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.blue,
+                          ),
                         ),
                       )
                     : const Icon(Icons.refresh_rounded),
@@ -107,9 +104,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildDashboardContent({
-    required NewsProvider newsProvider,
-  }) {
+  Widget _buildDashboardContent({required NewsProvider newsProvider}) {
     // Check if news provider is in loading state
     if (newsProvider.isLoading && newsProvider.news.isEmpty) {
       return Center(
@@ -190,10 +185,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               const SizedBox(height: 8),
               Text(
                 newsProvider.error!,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -204,7 +196,10 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -232,10 +227,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      Colors.blue[600]!,
-                      Colors.blue[400]!,
-                    ],
+                    colors: [Colors.blue[600]!, Colors.blue[400]!],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -272,10 +264,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                             children: [
                               Text(
                                 'Welcome to Agamudayar Admin Panel',
-                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -294,7 +287,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               // Statistics Section
               Row(
                 children: [
@@ -315,15 +308,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 ],
               ),
               const SizedBox(height: 20),
-              
+
               // Beautiful news card
-              _buildModernDashboardCard(
-                context,
-                newsProvider: newsProvider,
-              ),
-              
+              _buildModernDashboardCard(context, newsProvider: newsProvider),
+
               const SizedBox(height: 32),
-              
+
               // Status Overview Section
               Row(
                 children: [
@@ -346,15 +336,20 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               const SizedBox(height: 20),
               const NewsStatusCard(),
               const SizedBox(height: 16),
-              Center(
-                child: Text(
-                  'Version: 1.0.0+1',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
+              Row(
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        'Version: 1.0.0+1',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ),
                   ),
-                ),
+                  Expanded(child: const DunsTrustBadge()),
+                ],
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -363,7 +358,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   // Rest of the widget methods remain the same
-
 
   // Commented out - using News feature only
   /*
@@ -506,10 +500,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            Colors.blue[500]!,
-                            Colors.blue[600]!,
-                          ],
+                          colors: [Colors.blue[500]!, Colors.blue[600]!],
                         ),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
@@ -559,7 +550,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   ],
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Statistics Grid
                 Row(
                   children: [
@@ -591,24 +582,19 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Action Button
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [
-                        Colors.blue[50]!,
-                        Colors.blue[100]!,
-                      ],
+                      colors: [Colors.blue[50]!, Colors.blue[100]!],
                     ),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.blue.withOpacity(0.2),
-                    ),
+                    border: Border.all(color: Colors.blue.withOpacity(0.2)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -637,7 +623,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       ),
     );
   }
-  
+
   Widget _buildModernStatusCard(
     String label,
     int count,
@@ -649,17 +635,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-        ),
+        border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 24,
-          ),
+          Icon(icon, color: color, size: 24),
           const SizedBox(height: 8),
           Text(
             count.toString(),
@@ -701,6 +681,46 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           ),
         ),
       ],
+    );
+  }
+}
+
+// Define the unique element ID for the browser's DOM
+const String dunsElementId = 'duns-trust-badge-iframe';
+
+class DunsTrustBadge extends StatelessWidget {
+  const DunsTrustBadge({super.key});
+
+  // The actual HTML iframe code
+  static const String htmlContent =
+      "<iframe id='Iframe1' src='https://dunsregistered.dnb.com/SealAuthentication.aspx?Cid=1' " +
+      "width='114px' height='97px' frameborder='0' scrolling='no' allowtransparency='true' ></iframe>";
+
+  @override
+  Widget build(BuildContext context) {
+    // We register the HTML element once.
+    // This part of the code needs to check if it's running on the web
+    if (web.window.document.getElementById(dunsElementId) == null) {
+      // 1. Create a container element (a <div>)
+      final div = web.document.createElement('div');
+      div.id = dunsElementId;
+
+      // 2. Set its inner HTML to be the iframe code
+      div.innerHTML = htmlContent;
+
+      // 3. Append the element to the body of the HTML document
+      web.document.body?.appendChild(div);
+    }
+
+    // We render a placeholder in Flutter's widget tree
+    // The actual content is rendered by the browser into the HTML body.
+    return const SizedBox(
+      width: 114,
+      height: 97,
+      // Note: We use a placeholder here. We no longer use HtmlElementView.
+      child: Center(
+        child: Text('D&B Trust Seal', style: TextStyle(fontSize: 10)),
+      ),
     );
   }
 }
