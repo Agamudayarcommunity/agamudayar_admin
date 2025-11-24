@@ -2,6 +2,7 @@ import 'package:agamudayar_admin/features/auth/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:web/web.dart' as web;
 import '../../../config/theme.dart';
 import '../providers/auth_provider.dart';
 
@@ -34,9 +35,9 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text.trim(),
         context,
       );
-      
+
       if (!mounted) return;
-      
+
       // Show error message only if login failed
       if (!authProvider.isLoggedIn && authProvider.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -72,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          'Admin',//Agamudayar 
+                          'Admin', //Agamudayar
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -111,7 +112,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               padding: const EdgeInsets.only(right: 8),
                               child: IconButton(
                                 icon: Icon(
-                                  _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                                  _obscurePassword
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -138,14 +141,20 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: double.infinity,
                               height: 50,
                               child: ElevatedButton(
-                                onPressed: authProvider.isLoading ? null : _login,
+                                onPressed: authProvider.isLoading
+                                    ? null
+                                    : _login,
                                 child: authProvider.isLoading
-                                    ? const CircularProgressIndicator(color: Colors.white)
+                                    ? const CircularProgressIndicator(
+                                        color: Colors.white,
+                                      )
                                     : const Text('Login'),
                               ),
                             );
                           },
                         ),
+                        SizedBox(height: 30),
+                        DunsTrustBadge(),
                       ],
                     ),
                   ),
@@ -154,6 +163,46 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// Define the unique element ID for the browser's DOM
+const String dunsElementId = 'duns-trust-badge-iframe';
+
+class DunsTrustBadge extends StatelessWidget {
+  const DunsTrustBadge({super.key});
+
+  // The actual HTML iframe code
+  static const String htmlContent =
+      "<iframe id='Iframe1' src='https://dunsregistered.dnb.com/SealAuthentication.aspx?Cid=1' " +
+      "width='114px' height='97px' frameborder='0' scrolling='no' allowtransparency='true' ></iframe>";
+
+  @override
+  Widget build(BuildContext context) {
+    // We register the HTML element once.
+    // This part of the code needs to check if it's running on the web
+    if (web.window.document.getElementById(dunsElementId) == null) {
+      // 1. Create a container element (a <div>)
+      final div = web.document.createElement('div');
+      div.id = dunsElementId;
+
+      // 2. Set its inner HTML to be the iframe code
+      div.innerHTML = htmlContent;
+
+      // 3. Append the element to the body of the HTML document
+      web.document.body?.appendChild(div);
+    }
+
+    // We render a placeholder in Flutter's widget tree
+    // The actual content is rendered by the browser into the HTML body.
+    return const SizedBox(
+      width: 114,
+      height: 40,
+      // Note: We use a placeholder here. We no longer use HtmlElementView.
+      child: Center(
+        child: Text('D&B Trust Seal', style: TextStyle(fontSize: 10)),
       ),
     );
   }
